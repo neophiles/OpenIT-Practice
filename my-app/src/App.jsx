@@ -15,7 +15,7 @@ function App() {
 
   useEffect(() => {
     if (!isLogged && colorMode === "dark") toggleColorMode();
-  }, [isLogged]);
+  }, [isLogged, colorMode, toggleColorMode]);
 
   const handleLogin = () => {
     localStorage.setItem("logged", "true");
