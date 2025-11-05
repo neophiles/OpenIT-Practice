@@ -1,9 +1,18 @@
 import { useState } from "react";
-import { Flex, Heading, Spacer, HStack, Box, Text, Button, useColorMode, useColorModeValue } from "@chakra-ui/react";
+import {
+  Box, Flex, HStack, Spacer,
+  Heading, Text, Button,
+  useColorMode, useColorModeValue,
+  useDisclosure
+} from "@chakra-ui/react";
 import { SunIcon, MoonIcon } from "@chakra-ui/icons";
 import AlertTemplate from "./AlertTemplate";
+import ModalTemplate from "./ModalTemplate";
+import { useAuth } from "../context/AuthProvider";
 
-function TopNavbar({ handleLogout, currentUser }) {
+function TopNavbar() {
+  const { handleLogout, currentUser } = useAuth();
+
   const {colorMode, toggleColorMode} = useColorMode();
 
   const bg = {
@@ -11,12 +20,27 @@ function TopNavbar({ handleLogout, currentUser }) {
     profile: useColorModeValue("gray.200", "whiteAlpha.300"),
   }
 
-  const [alertInfo, setAlertInfo] = useState(null);
+  const [modalInfo, setModalInfo] = useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const [alertInfo, setAlertInfo] = useState(null);
+  
+  const onClick = () => {
+    setAlertInfo({status: "info", message: "Logging out. Goodbye!"});
+    onOpen()
+    setTimeout(() => {
+      handleLogout();
+    }, 2000);
+  }
+  
   return (
     <>
       {alertInfo && (
         <AlertTemplate alertInfo={alertInfo} onClose={() => setAlertInfo(null)} />
+      )}
+
+      {modalInfo && isOpen && (
+        <ModalTemplate modalInfo={modalInfo} isOpen={isOpen} onClose={onClose} onClick={onClick} />
       )}
 
       <Flex as="header" bg={bg.navbar} px="30px" py="20px" align="center" position="sticky" top="0" zIndex="100">
@@ -27,17 +51,15 @@ function TopNavbar({ handleLogout, currentUser }) {
             {colorMode === 'light' ? <SunIcon color="yellow.500" /> : <MoonIcon color="yellow.500" />}
           </Button>
           <Box bg={bg.profile} py="8px" px="16px" borderRadius="5px">
-            {currentUser.username.charAt(0)}
+            {currentUser?.username?.charAt(0) || "G"}
           </Box>
           <Text>
-            {currentUser.email}
+            {currentUser?.email || "guest@example.com"}
           </Text>
           <Button
             onClick={() => {
-              setAlertInfo({status: "info", message: "Logging out. Goodbye!"});
-              setTimeout(() => {
-                handleLogout();
-              }, 2000);
+              setModalInfo({title: "Logout Confirm", message: "Are you sure you want to log out?", buttonText: "Logout"});
+              onOpen();
             }}
             colorScheme="brand"
           >
