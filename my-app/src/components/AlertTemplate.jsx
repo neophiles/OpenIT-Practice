@@ -11,7 +11,7 @@ export default function AlertTemplate({ alertInfo, onClose }) {
   if (!alertInfo) return;
 
   return (
-    <Alert status={alertInfo.status} position='fixed' top="0" transform="translateX(-50%)" left="50%" w="md" zIndex="1000">
+    <Alert variant="solid" status={alertInfo.status} position='fixed' top="0" transform="translateX(-50%)" left="50%" w="md" zIndex="9999">
       <AlertIcon />
       {alertInfo.message}
     </Alert>
