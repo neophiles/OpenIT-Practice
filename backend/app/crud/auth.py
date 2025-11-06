@@ -16,3 +16,9 @@ def create_user(username: str, email: str, password: str, session: Session) -> U
     session.commit()
     session.refresh(user)
     return user
+
+def authenticate_user(username: str, password: str, session: Session) -> User | None:
+    user = session.exec(select(User).where(User.username == username)).first()
+    if not user or not verify_password(password, user.password):
+        return None
+    return user

@@ -18,3 +18,7 @@ class UserRead(BaseModel):
     middle_name:  Optional[str] = None
     last_name:  Optional[str] = None
     gender:  Optional[str] = None
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
