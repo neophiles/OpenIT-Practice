@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.database import init_db
 
-from app.routers.auth import router
+from app.routes.auth import router
 
 app = FastAPI()
 
