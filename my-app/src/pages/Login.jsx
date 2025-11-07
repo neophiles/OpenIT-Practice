@@ -7,6 +7,7 @@ import {
 } from "@chakra-ui/react";
 import AlertTemplate from "../components/AlertTemplate";
 import { useAuth } from "../context/AuthProvider";
+import { login } from "../api/auth";
 
 function Login() {
   const { handleLogin } = useAuth();
@@ -55,14 +56,20 @@ function Login() {
     console.log(users);
     console.log(loginData);
 
-    if (found) {
+
+    try {
+      const res = login(loginData);
+      const accessToken = res.access_token;
+      console.log(accessToken);
+
       setAlertInfo({status: "success", message: "Login successful!"});
 
       setTimeout(() => {
-        handleLogin(found);
+        handleLogin(found, accessToken);
       }, 2000);
-    } else {
+    } catch (err) {
       setAlertInfo({status: "error", message: "Invalid credentials! Please try again."});
+      console.error(err);
     }
   };
 
