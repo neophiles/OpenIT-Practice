@@ -7,7 +7,9 @@ import {
 } from "@chakra-ui/react";
 import AlertTemplate from "../components/AlertTemplate";
 import { useAuth } from "../context/AuthProvider";
-import { login } from "../api/auth";
+import { login } from "../api/auth";  
+import api from "../api/axios"; 
+
 
 function Login() {
   const { handleLogin } = useAuth();
@@ -42,36 +44,33 @@ function Login() {
 
   const users = JSON.parse(localStorage.getItem("users")) || [];
 
-  const found = users.find(u => u.username === loginData.username && u.password === loginData.password);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const hasEmptyFields = Object.values(loginData).some((v) => v.trim() === "");
+    const hasEmptyFields = Object.values(loginData).some(v => v.trim() === "");
     if (hasEmptyFields) {
-      setAlertInfo({status: "error", message: "Please fill in all fields!"});
+      setAlertInfo({ status: "error", message: "Please fill in all fields!" });
       return;
     }
-    
-    console.log(users);
-    console.log(loginData);
-
 
     try {
-      const res = login(loginData);
-      const accessToken = res.access_token;
-      console.log(accessToken);
+      const res = await login({ username: loginData.username, password: loginData.password });
+      const accessToken = res?.access_token;
+      if (!accessToken) throw new Error("No access token returned");
 
-      setAlertInfo({status: "success", message: "Login successful!"});
+      const userRes = await api.get("/users/me", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const user = userRes.data;
 
-      setTimeout(() => {
-        handleLogin(found, accessToken);
-      }, 2000);
+      setAlertInfo({ status: "success", message: "Login successful!" });
+      setTimeout(() => handleLogin(user, accessToken), 2000);
     } catch (err) {
-      setAlertInfo({status: "error", message: "Invalid credentials! Please try again."});
+      setAlertInfo({ status: "error", message: "Invalid credentials! Please try again." });
       console.error(err);
     }
-  };
+
+};
 
   return (
     <>

@@ -7,6 +7,7 @@ import {
   Heading, Text,
 } from "@chakra-ui/react";
 import AlertTemplate from "../components/AlertTemplate";
+import { register } from "../api/auth";
 
 function Register() {
   const [user, setUser] = useState({
@@ -45,32 +46,35 @@ function Register() {
     }));
   };
 
-  const users = JSON.parse(localStorage.getItem("users")) || [];
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const requiredFields = [user.email, user.username, user.password];
     const hasEmptyFields = requiredFields.some((v) => v.trim() === "");
     if (hasEmptyFields) {
-      alert("Please fill in all fields.");
+      setAlertInfo({ status: "error", message: "Please fill in all fields." });
       return;
     }
 
-    const userExists = users.some(
-      (u) => u.email === user.email || u.username === user.username
-    );
+    try {
+      const res = await register({
+        username: user.username,
+        email: user.email,
+        password: user.password,
+      });
 
-    if (userExists) {
-      setAlertInfo({status: "error", message: "User already exists."});
-      return;
+      const accessToken = res?.access_token;
+      if (!accessToken) throw new Error("No access token returned");
+
+      setAlertInfo({ status: "success", message: "Registered successfully!" });
+      setTimeout(() => navigate("/login"), 1500);
+    } catch (err) {
+      setAlertInfo({
+        status: "error",
+        message: err.response?.data?.detail || "Registration failed.",
+      });
+      console.error(err);
     }
-
-    users.push(user);
-    localStorage.setItem("users", JSON.stringify(users));
-
-    alert("Registered successfully!");
-    navigate("/login");
   };
 
   return (

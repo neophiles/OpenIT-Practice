@@ -26,7 +26,7 @@ function Profile() {
 
   const [isChangingName, setChangingName] = useState(false);
 
-  const [draftUser, setDraftUser] = useState(currentUser);
+  const [draftUser, setDraftUser] = useState(currentUser || {});
   const [pendingField, setPendingField] = useState(null);
 
   const [modalInfo, setModalInfo] = useState(null);
@@ -51,7 +51,7 @@ function Profile() {
     }
 
     try {
-      const res =  await userUpdate(updatedUser);
+      const res =  await userUpdate(updatedUser, token);
 
       setCurrentUser(res);
       localStorage.setItem("currentUser", JSON.stringify(res));
