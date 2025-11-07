@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.database import init_db
 
-from app.routes.auth import router
+from app.routes.auth import router as auth_router
+from app.routes.users import router as users_router
 
 app = FastAPI()
 
@@ -23,7 +24,8 @@ app.add_middleware(
 )
 
 
-app.include_router(router)
+app.include_router(auth_router)
+app.include_router(users_router)
 
 @app.on_event("startup")
 def on_startup():

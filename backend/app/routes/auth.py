@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from app.crud.auth import create_user, authenticate_user
 from app.schemas.users import UserCreate, UserLogin
 from app.utils.auth import create_access_token
@@ -18,10 +19,13 @@ def register(user_data: UserCreate, session: Session = Depends(get_session)):
 
 
 @router.post("/token")
-def login(user_data: UserLogin, session: Session = Depends(get_session)):
-    user = authenticate_user(user_data.username, user_data.password, session)
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: Session = Depends(get_session),
+):
+    user = authenticate_user(form_data.username, form_data.password, session)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     
-    access_token = create_access_token(data={"sub": user.username})
+    access_token = access_token = create_access_token(data={"sub": user.username, "id": user.id})
     return {"access_token": access_token, "token_type": "bearer"}
