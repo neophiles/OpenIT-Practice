@@ -4,6 +4,7 @@ import { useBoolean, useColorMode } from '@chakra-ui/react';
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
+  const [token, setToken] = useState(localStorage.getItem("token"));
   const [isLogged, setLogged] = useBoolean(localStorage.getItem("logged") === "true");
 
   const [currentUser, setCurrentUser] = useState(() => {
@@ -17,23 +18,26 @@ export function AuthProvider({ children }) {
     if (!isLogged && colorMode === "dark") toggleColorMode();
   }, [isLogged, colorMode, toggleColorMode]);
 
-  const handleLogin = (userData) => {
+  const handleLogin = (userData, token) => {
     localStorage.setItem("logged", "true");
     localStorage.setItem("currentUser", JSON.stringify(userData));
+    localStorage.setItem("token", token);
     setLogged.on();
     setCurrentUser(userData);
+    setToken(token);
   };
 
   const handleLogout = () => {
     localStorage.removeItem("logged");
     localStorage.removeItem("currentUser");
+    localStorage.removeItem("token");
     setLogged.off();
     setCurrentUser(null);
   };
 
   return (
     <AuthContext.Provider
-      value={{ isLogged, currentUser, setCurrentUser, handleLogin, handleLogout }}
+      value={{ token, setToken, isLogged, currentUser, setCurrentUser, handleLogin, handleLogout }}
     >
       {children}
     </AuthContext.Provider>
