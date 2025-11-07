@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from app.crud.auth import create_user, authenticate_user
 from app.schemas.users import UserCreate, UserLogin
 from app.utils.auth import create_access_token
@@ -16,8 +17,6 @@ def register(user_data: UserCreate, session: Session = Depends(get_session)):
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
-
-from fastapi.security import OAuth2PasswordRequestForm
 
 @router.post("/token")
 def login(
