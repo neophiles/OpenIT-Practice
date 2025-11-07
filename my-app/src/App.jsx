@@ -8,11 +8,11 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 
 function AppRoutes() {
-  const { isLogged } = useAuth();
+  const { token, isLogged } = useAuth();
 
   return (
     <Routes>
-      {!isLogged ? (
+      {!token && !isLogged ? (
         <>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
