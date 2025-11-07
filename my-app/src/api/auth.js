@@ -7,7 +7,11 @@ export const register = async (data) => {
 };
 
 export const login = async (data) => {
-  const res = await api.post('/auth/token', data);
+  const res = await api.post('/auth/token', data, {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  });
   console.log(res.data)
   return res.data;
 };
