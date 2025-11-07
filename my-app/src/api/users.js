@@ -1,7 +1,10 @@
 import api from './axios';
 
-export const userUpdate = async (data) => {
-    const res = await api.patch('users/me', data);
-    console.log(res.data)
-    return res.data;
-}
+export const userUpdate = async (data, token) => {
+  const res = await api.patch("/users/me", data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.data;
+};
