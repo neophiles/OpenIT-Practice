@@ -12,7 +12,7 @@ def update_user(user_id: int, user_update_data, session: Session):
 
     # Handle password (rehash before saving)
     if "password" in update_data:
-        update_data["password"] = hash_password(update_data.pop(password))
+        update_data["password"] = hash_password(update_data.pop("password"))
 
     for key, value in update_data.items():
         setattr(user, key, value)
