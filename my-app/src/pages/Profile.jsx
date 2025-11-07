@@ -12,9 +12,10 @@ import {
 } from "@chakra-ui/react";
 import ModalTemplate from "../components/ModalTemplate";
 import ToastTemplate from "../components/ToastTemplate";
+import { userUpdate } from "../api/users";
 
 function Profile() {
-  const { currentUser, setCurrentUser } = useAuth();
+  const { token, currentUser, setCurrentUser } = useAuth();
 
   const [isChanging, setChanging] = useState({
     email: false,
@@ -38,7 +39,7 @@ function Profile() {
     setDraftUser(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     const updatedUser = { ...currentUser };
 
     if (pendingField === "name") {
@@ -49,26 +50,33 @@ function Profile() {
       updatedUser[pendingField] = draftUser[pendingField];
     }
 
-    setCurrentUser(updatedUser);
-    localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+    try {
+      const res =  await userUpdate(updatedUser);
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const updatedUsers = users.map(u => 
-      u.username === currentUser.username ? updatedUser : u
-    );
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
+      setCurrentUser(res);
+      localStorage.setItem("currentUser", JSON.stringify(res));
 
-    setToastInfo({
-      title: `${pendingField.charAt(0).toUpperCase() + pendingField.slice(1)} Updated!`,
-      description: `You successfully changed your ${
-        pendingField === "name" ? "Full Name" : pendingField
-      }.`
-    });
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const updatedUsers = users.map(u => 
+        u.username === currentUser.username ? res : u
+      );
 
-    setChanging(prev => ({ ...prev, [pendingField]: false }));
-    setPendingField(null);
-    setChangingName(false);
-    onClose();
+      localStorage.setItem("users", JSON.stringify(updatedUsers));
+
+      setToastInfo({
+        title: `${pendingField.charAt(0).toUpperCase() + pendingField.slice(1)} Updated!`,
+        description: `You successfully changed your ${
+          pendingField === "name" ? "Full Name" : pendingField
+        }.`
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setChanging(prev => ({ ...prev, [pendingField]: false }));
+      setPendingField(null);
+      setChangingName(false);
+      onClose();
+    }
   };
 
   const handleCancel = (e) => {
